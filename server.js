@@ -12,36 +12,42 @@ app.get("/", (req, res) => {
   res.send("hello world");
 });
 app.post("/api/getEmail", async (req, res) => {
-  const { name, userEmail, userMessage } = req.body;
-  // await sendEmail(email, name, message);
+  try {
+    const { name, userEmail, userMessage } = req.body;
+    // await sendEmail(email, name, message);
 
-  const transporter = nodemailer.createTransport({
-    host: "smtp.gmail.com",
-    service: "gmail",
-    port: 587,
-    secure: false,
-    requireTLS: true,
-    auth: {
-      user: process.env.SEND_MAIL,
-      pass: process.env.SEND_MAIL_PASSWORD,
-    },
-  });
-  const options = {
-    from: userEmail,
-    to: process.env.SEND_MAIL,
-    subject: `${name} was trying to contact with you .`,
-    html: `<p>Name: ${name} </p> <p><a href="mailto:${userEmail}">Email: ${userEmail}</a></p> <p>Message: ${userMessage} </p>`,
-  };
+    const transporter = nodemailer.createTransport({
+      host: "smtp.gmail.com",
+      service: "gmail",
+      port: 587,
+      secure: false,
+      requireTLS: true,
+      auth: {
+        user: process.env.SEND_MAIL,
+        pass: process.env.SEND_MAIL_PASSWORD,
+      },
+    });
+    const options = {
+      from: userEmail,
+      to: process.env.SEND_MAIL,
+      subject: `${name} was trying to contact with you .`,
+      html: `<p>Name: ${name} </p> <p><a href="mailto:${userEmail}">Email: ${userEmail}</a></p> <p>Message: ${userMessage} </p>`,
+    };
 
-  transporter.sendMail(options, (error, info) => {
-    if (error) {
-      console.log("error : " + error);
-      res.json({ msg: "email sent failed", success: false });
-      return;
-    }
-  });
-  res.json({ msg: "email sent success", success: true });
-
+    transporter.sendMail(options, (error, info) => {
+      if (error) {
+        console.log("error : " + error);
+        res.json({ msg: "email sent failed", success: false });
+        return;
+      } else {
+        console.log("email sent successfully : " + info.response);
+        res.json({ msg: "email sent success", success: true });
+      }
+    });
+  } catch (error) {
+    console.log("error : " + error);
+    res.json({ msg: "email sent failed", success: false });
+  }
   // this is the route for user contact me by email write the code of nodemailer
 });
 
